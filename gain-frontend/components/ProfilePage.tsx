@@ -1,42 +1,88 @@
-// app/ProfilePage.tsx
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import DashboardIcon from 'C:/Users/RIYA/Desktop/Gain-React-native-app/gain-frontend/assets/dashboard.svg';
+import ReportIcon from 'C:/Users/RIYA/Desktop/Gain-React-native-app/gain-frontend/assets/report.svg';
+import ConnectIcon from 'C:/Users/RIYA/Desktop/Gain-React-native-app/gain-frontend/assets/connect.svg';
+import ProfileIcon from 'C:/Users/RIYA/Desktop/Gain-React-native-app/gain-frontend/assets/profile.svg';
+import axios from 'axios'; // Import Axios
 
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { SvgUri } from 'react-native-svg'; // Ensure to install the package for SVG if needed
-import ProfileIcon from '../assets/profile.svg'; // Adjust the path to your SVG file
-import DashboardIcon from '../assets/dashboard.svg'; // Path to the dashboard SVG
-import ReportIcon from '../assets/report.svg'; // Path to the report SVG
-import ConnectIcon from '../assets/connect.svg'; // Path to the connect SVG
+// Define a type for the user data
+interface User {
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  earnings: number;
+  expenditure: number;
+  riskFactor: number;
+}
 
 const ProfilePage = () => {
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user data from backend
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('https://your-api-endpoint.com/user'); // Replace with your API endpoint
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Show loading indicator while fetching data
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  // If userData is null, handle the case (e.g., show an error message)
+  if (!userData) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Failed to load user data.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <Image source={require('../assets/your-profile-image.png')} style={styles.profileImage} />
-        <Text style={styles.name}>MARK ZUCKERBERG</Text>
-        <Text style={styles.role}>CEO, Facebook</Text>
-        <Text style={styles.email}>markzuckerberg@facebook.com</Text>
-        <Text style={styles.phone}>+91 987654321</Text>
+        <Text style={styles.name}>{userData.name}</Text>
+        <Text style={styles.role}>{userData.role}</Text>
+        <Text style={styles.email}>{userData.email}</Text>
+        <Text style={styles.phone}>{userData.phone}</Text>
       </View>
 
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>50K</Text>
+          <Text style={styles.statValue}>{userData.earnings}K</Text>
           <Text style={styles.statLabel}>EARNING</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>30K</Text>
+          <Text style={styles.statValue}>{userData.expenditure}K</Text>
           <Text style={styles.statLabel}>EXPENDITURE</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>50K</Text>
+          <Text style={styles.statValue}>{userData.earnings}K</Text>
           <Text style={styles.statLabel}>EARNING</Text>
         </View>
       </View>
 
       <Text style={styles.riskTitle}>My Risk Appetite</Text>
       <View style={styles.riskContainer}>
-        <Text style={styles.riskValue}>821</Text>
+        <Text style={styles.riskValue}>{userData.riskFactor}</Text>
         <Text style={styles.riskText}>Your risk factor is</Text>
       </View>
 
@@ -47,11 +93,12 @@ const ProfilePage = () => {
         <Text style={styles.interactionChange}>+2.49 (8%)</Text>
       </View>
 
+      {/* Directly use the imported SVGs as components */}
       <View style={styles.iconContainer}>
-        <SvgUri uri={DashboardIcon} width="30" height="30" />
-        <SvgUri uri={ReportIcon} width="30" height="30" />
-        <SvgUri uri={ConnectIcon} width="30" height="30" />
-        <SvgUri uri={ProfileIcon} width="30" height="30" />
+        <DashboardIcon width={30} height={30} />
+        <ReportIcon width={30} height={30} />
+        <ConnectIcon width={30} height={30} />
+        <ProfileIcon width={30} height={30} />
       </View>
     </View>
   );
@@ -62,6 +109,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
   },
   profileContainer: {
     alignItems: 'center',
